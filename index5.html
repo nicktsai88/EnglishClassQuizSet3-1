@@ -410,6 +410,10 @@
         let selectedVoice = null;
         let userScore = 0; // Track score in real-time
         
+        // Setup sound effects
+        const correctSound = new Audio('sounds/correct.mp3');
+        const failSound = new Audio('sounds/fail.mp3');
+
         // --- Initialization ---
         window.onload = function() {
             renderArticle();
@@ -678,25 +682,31 @@
 
             const isCorrect = selectedKey === questionObj.ans;
             
+            // Disable all inputs for this question to prevent re-answering
+            const optionsDiv = document.getElementById(`${questionId}-options`);
+            const inputs = optionsDiv.querySelectorAll('input');
+            const labels = optionsDiv.querySelectorAll('label');
+            
+            inputs.forEach(input => input.disabled = true);
+            labels.forEach(label => label.classList.add('disabled'));
+
             // Visual feedback for selected option
             const selectedLabel = document.getElementById(`${questionId}-label-${selectedKey}`);
             const selectedIcon = document.getElementById(`${questionId}-icon-${selectedKey}`);
             
             if (isCorrect) {
-                // Play Correct Sound (Instantiated locally to avoid global state issues)
-                let audio = new Audio('sounds/correct.mp3');
-                audio.volume = 1.0;
-                audio.play().catch(e => console.error("Error playing sounds/correct.mp3. Check file path/name.", e));
+                // Play Correct Sound
+                correctSound.currentTime = 0;
+                correctSound.play().catch(e => console.log("Audio play failed:", e));
 
                 selectedLabel.classList.add('correct');
                 selectedIcon.classList.add('border-green-500', 'text-green-600', 'bg-green-100');
                 selectedIcon.innerHTML = '<i class="fas fa-check"></i>';
                 userScore += 10;
             } else {
-                // Play Fail Sound (Instantiated locally)
-                let audio = new Audio('sounds/fail.mp3');
-                audio.volume = 1.0;
-                audio.play().catch(e => console.error("Error playing sounds/fail.mp3. Check file path/name.", e));
+                // Play Fail Sound
+                failSound.currentTime = 0;
+                failSound.play().catch(e => console.log("Audio play failed:", e));
 
                 selectedLabel.classList.add('wrong');
                 selectedIcon.classList.add('border-red-500', 'text-red-600', 'bg-red-100');
@@ -709,15 +719,6 @@
                 correctIcon.classList.add('border-green-500', 'text-green-600', 'bg-green-100');
                 correctIcon.innerHTML = '<i class="fas fa-check"></i>';
             }
-
-            // Disable all inputs for this question to prevent re-answering
-            // Move this AFTER playing sound to ensure logic flows
-            const optionsDiv = document.getElementById(`${questionId}-options`);
-            const inputs = optionsDiv.querySelectorAll('input');
-            const labels = optionsDiv.querySelectorAll('label');
-            
-            inputs.forEach(input => input.disabled = true);
-            labels.forEach(label => label.classList.add('disabled'));
 
             // Show Explanation
             const explBox = document.getElementById(`${questionId}-expl`);
