@@ -410,63 +410,6 @@
         let selectedVoice = null;
         let userScore = 0; // Track score in real-time
         
-        // --- Web Audio API Context ---
-        // Initialize lazily to respect browser autoplay policies
-        let audioCtx;
-
-        function initAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-        
-        // --- Synthesized Sound Effects (No External Files Needed) ---
-        
-        function playCorrectSound() {
-            initAudioContext();
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // High-pitched "Ding" (Sine wave)
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime); // Start at 600Hz
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); // Ramp to 1000Hz quickly
-            
-            // Envelope for short sound
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-        }
-
-        function playFailSound() {
-            initAudioContext();
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // Low-pitched "Buzz" (Sawtooth wave)
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime); // Low pitch
-            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3); // Drop pitch slightly
-            
-            // Envelope
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
-        }
-
         // --- Initialization ---
         window.onload = function() {
             renderArticle();
@@ -740,16 +683,20 @@
             const selectedIcon = document.getElementById(`${questionId}-icon-${selectedKey}`);
             
             if (isCorrect) {
-                // Play Synthetic Correct Sound (No external file needed)
-                playCorrectSound();
+                // Play Correct Sound (Instantiated locally to avoid global state issues)
+                let audio = new Audio('sounds/correct.mp3');
+                audio.volume = 1.0;
+                audio.play().catch(e => console.error("Error playing sounds/correct.mp3. Check file path/name.", e));
 
                 selectedLabel.classList.add('correct');
                 selectedIcon.classList.add('border-green-500', 'text-green-600', 'bg-green-100');
                 selectedIcon.innerHTML = '<i class="fas fa-check"></i>';
                 userScore += 10;
             } else {
-                // Play Synthetic Fail Sound (No external file needed)
-                playFailSound();
+                // Play Fail Sound (Instantiated locally)
+                let audio = new Audio('sounds/fail.mp3');
+                audio.volume = 1.0;
+                audio.play().catch(e => console.error("Error playing sounds/fail.mp3. Check file path/name.", e));
 
                 selectedLabel.classList.add('wrong');
                 selectedIcon.classList.add('border-red-500', 'text-red-600', 'bg-red-100');
