@@ -27,34 +27,47 @@
             font-weight: 500;
         }
         
-        .correct-answer {
-            background-color: #ecfdf5; 
-            border: 1px solid #10b981;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+        /* Quiz Styles */
+        .quiz-option {
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
-        
-        .wrong-answer {
-            background-color: #fef2f2;
-            border: 1px solid #ef4444;
+        .quiz-option:hover:not(.disabled) {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .quiz-option.correct {
+            background-color: #ecfdf5 !important;
+            border-color: #10b981 !important;
+            color: #065f46;
+        }
+        .quiz-option.wrong {
+            background-color: #fef2f2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b;
+            opacity: 0.8;
+        }
+        .quiz-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .explanation-box {
-            display: none;
+            display: none; /* Hidden by default */
             margin-top: 10px;
             font-size: 0.95em;
             color: #4b5563;
             background: #fff;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             border-left: 4px solid #6366f1;
+            background-color: #f8fafc;
+            animation: slideDown 0.3s ease-out;
         }
 
-        .option-label {
-            transition: all 0.2s;
-        }
-        .option-label:hover {
-            background-color: #f3f4f6;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         /* Interactive Vocabulary Styles */
@@ -63,44 +76,61 @@
             cursor: help;
             transition: all 0.2s;
             position: relative;
+            color: #1e40af;
         }
         .vocab-word:hover {
             background-color: #e0e7ff;
-            color: #4338ca;
+            color: #1e3a8a;
         }
 
         /* Tooltip Style */
         .vocab-tooltip {
             visibility: hidden;
-            width: 120px;
-            background-color: #333;
+            width: max-content;
+            min-width: 120px;
+            background-color: #1f2937;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px 0;
+            padding: 8px 12px;
             position: absolute;
             z-index: 100;
-            bottom: 125%; /* Position above */
+            bottom: 140%; /* Position above */
             left: 50%;
-            margin-left: -60px;
+            transform: translateX(-50%);
             opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85rem;
+            transition: opacity 0.2s, transform 0.2s;
+            font-size: 0.9rem;
             pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            line-height: 1.4;
         }
         .vocab-tooltip::after {
             content: "";
             position: absolute;
             top: 100%;
             left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
+            margin-left: -6px;
+            border-width: 6px;
             border-style: solid;
-            border-color: #333 transparent transparent transparent;
+            border-color: #1f2937 transparent transparent transparent;
         }
         .vocab-word:hover .vocab-tooltip {
             visibility: visible;
             opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+        
+        /* POS Tag Style in Tooltip */
+        .pos-tag {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            background-color: #4f46e5;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-right: 6px;
+            font-weight: bold;
+            color: #e0e7ff;
         }
         
         /* Audio Wave Animation */
@@ -198,49 +228,27 @@
         
         <!-- Image Card -->
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
-             <div class="w-full h-64 bg-amber-50 relative overflow-hidden group">
-                <!-- SVG Illustration -->
-                <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 200">
-                    <!-- Background Gradient -->
-                    <defs>
-                        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:1" />
-                        </linearGradient>
-                        <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#e5e7eb;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#d1d5db;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <rect width="400" height="120" fill="url(#skyGrad)" />
-                    <rect y="120" width="400" height="80" fill="url(#groundGrad)" />
-                    
-                    <!-- Mountains -->
-                    <path d="M-20 120 L50 40 L120 120 Z" fill="#9ca3af" />
-                    <path d="M80 120 L160 30 L240 120 Z" fill="#6b7280" />
-                    <path d="M200 120 L280 50 L360 120 Z" fill="#9ca3af" />
-                    <path d="M320 120 L420 60 L500 120 Z" fill="#6b7280" />
+             <!-- Increased height for better photo visibility (h-64 to md:h-80) -->
+             <div class="w-full h-64 md:h-80 bg-gray-200 relative overflow-hidden group">
+                <!-- 
+                    Updated to use Real Image 
+                    src: Points to your local file "images/background.jpg"
+                    onerror: Fallback to an online image if local file is missing (for preview purposes)
+                -->
+                <img 
+                    src="images/background.jpg" 
+                    alt="Racetrack Playa with sailing stones" 
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1519702237-775b06229156?q=80&w=1200&auto=format&fit=crop';"
+                >
+                
+                <!-- Dark Gradient Overlay for better text readability -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
 
-                    <!-- Playa Cracks -->
-                    <g stroke="#9ca3af" stroke-width="0.5" fill="none">
-                        <path d="M50 140 l20 10 l-10 10" />
-                        <path d="M200 150 l30 -5 l10 15" />
-                        <path d="M350 130 l-20 20" />
-                    </g>
-                    
-                    <!-- Rock 1 -->
-                    <path d="M60 140 Q 100 130, 150 160" stroke="#b45309" stroke-width="2" fill="none" stroke-dasharray="4,2"/>
-                    <circle cx="150" cy="160" r="8" fill="#4b5563" />
-                    <ellipse cx="150" cy="165" rx="8" ry="3" fill="black" opacity="0.2" />
-
-                    <!-- Rock 2 -->
-                    <path d="M300 130 Q 320 170, 280 150" stroke="#b45309" stroke-width="2" fill="none" stroke-dasharray="4,2"/>
-                    <rect x="272" y="144" width="16" height="12" fill="#374151" transform="rotate(-15 280 150)" />
-                    <ellipse cx="280" cy="158" rx="10" ry="3" fill="black" opacity="0.2" />
-                </svg>
-                <div class="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
-                    Listening Focus: The Mystery of the Sailing Stones
+                <div class="absolute bottom-4 left-4 right-4 text-white">
+                    <div class="flex items-center gap-2 text-sm font-medium opacity-90 backdrop-blur-sm bg-black/30 w-fit px-3 py-1 rounded-full">
+                        <i class="fas fa-camera"></i> Listening Focus: The Mystery of the Sailing Stones
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,7 +258,7 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">The Mystery of the Sailing Stones</h2>
             
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 text-sm text-blue-700">
-                <i class="fas fa-info-circle mr-1"></i> <strong>Tip:</strong> Hover over or tap underlined words to see their meaning!
+                <i class="fas fa-info-circle mr-1"></i> <strong>Tip:</strong> Hover over or tap underlined words to see their meaning & part of speech!
             </div>
 
             <!-- Hidden Message Overlay -->
@@ -285,8 +293,9 @@
             </form>
 
             <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col items-center">
-                <button type="button" onclick="submitQuiz()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold py-3 px-10 rounded-full shadow-lg transition transform hover:-translate-y-1 active:scale-95">
-                    Submit Answers
+                <!-- Changed Button Functionality -->
+                <button type="button" onclick="showFinalScore()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold py-3 px-10 rounded-full shadow-lg transition transform hover:-translate-y-1 active:scale-95">
+                    Show Final Score
                 </button>
                 
                 <div id="score-card" class="hidden mt-6 text-center w-full bg-indigo-50 p-6 rounded-xl border border-indigo-100 animate-fade-in">
@@ -326,21 +335,71 @@
             { id: 'q10', q: "10. How does the author feel?", options: {A: "Disappointed.", B: "Angry.", C: "Impressed by nature.", D: "Confused."}, ans: 'C', expl: "結尾 Nature is truly full of surprises 表達了讚嘆。" }
         ];
 
-        // Vocabulary Dictionary (Simple Map for this article)
+        // Extended Vocabulary Dictionary with Part of Speech (POS)
         const vocabulary = {
-            "quiet": "安靜的", "corner": "角落", "strange": "奇怪的", "place": "地方", "dry": "乾的", 
-            "flat": "平坦的", "lakebed": "湖床", "surrounded": "圍繞", "mountains": "山脈", "secret": "秘密", 
-            "visitors": "遊客", "noticed": "注意到", "heavy": "沉重的", "rocks": "岩石", "trails": "痕跡", 
-            "moved": "移動", "desert": "沙漠", "floor": "地面", "straight": "直的", "curved": "彎曲的", 
-            "actually": "實際上", "phenomenon": "現象", "puzzled": "困惑", "scientists": "科學家", "decades": "數十年", 
-            "travel": "移動", "hundreds": "數百", "meters": "公尺", "ideas": "想法", "aliens": "外星人", 
-            "magnetism": "磁力", "powerful": "強大的", "winds": "風", "proof": "證據", "sailing": "航行", 
-            "mystery": "謎團", "solved": "解決", "puzzle": "謎題", "devices": "裝置", "cameras": "相機", 
-            "patiently": "耐心地", "conditions": "條件", "arrived": "到達", "shallow": "淺的", "layer": "層", 
-            "froze": "結冰", "thin": "薄的", "sheets": "片", "ice": "冰", "floating": "漂浮的", 
-            "panels": "板塊", "pushed": "推動", "boat": "船", "slippery": "滑的", "slid": "滑動", 
-            "melted": "融化", "dried": "變乾", "tracks": "軌跡", "magic": "魔法", "rare": "罕見的", 
-            "mix": "混合", "nature": "大自然", "surprises": "驚喜"
+            "quiet": { pos: "adj.", trans: "安靜的" },
+            "corner": { pos: "n.", trans: "角落" },
+            "strange": { pos: "adj.", trans: "奇怪的" },
+            "place": { pos: "n.", trans: "地方" },
+            "dry": { pos: "adj.", trans: "乾的" },
+            "flat": { pos: "adj.", trans: "平坦的" },
+            "lakebed": { pos: "n.", trans: "湖床" },
+            "surrounded": { pos: "v.", trans: "圍繞" },
+            "mountains": { pos: "n.", trans: "山脈" },
+            "secret": { pos: "n.", trans: "秘密" },
+            "visitors": { pos: "n.", trans: "遊客" },
+            "noticed": { pos: "v.", trans: "注意到" },
+            "heavy": { pos: "adj.", trans: "沉重的" },
+            "rocks": { pos: "n.", trans: "岩石" },
+            "trails": { pos: "n.", trans: "痕跡" },
+            "moved": { pos: "v.", trans: "移動" },
+            "desert": { pos: "n.", trans: "沙漠" },
+            "floor": { pos: "n.", trans: "地面" },
+            "straight": { pos: "adj.", trans: "直的" },
+            "curved": { pos: "adj.", trans: "彎曲的" },
+            "actually": { pos: "adv.", trans: "實際上" },
+            "phenomenon": { pos: "n.", trans: "現象" },
+            "puzzled": { pos: "v.", trans: "困惑" },
+            "scientists": { pos: "n.", trans: "科學家" },
+            "decades": { pos: "n.", trans: "數十年" },
+            "travel": { pos: "v.", trans: "移動" },
+            "hundreds": { pos: "n.", trans: "數百" },
+            "meters": { pos: "n.", trans: "公尺" },
+            "ideas": { pos: "n.", trans: "想法" },
+            "aliens": { pos: "n.", trans: "外星人" },
+            "magnetism": { pos: "n.", trans: "磁力" },
+            "powerful": { pos: "adj.", trans: "強大的" },
+            "winds": { pos: "n.", trans: "風" },
+            "proof": { pos: "n.", trans: "證據" },
+            "sailing": { pos: "n/adj", trans: "航行" },
+            "mystery": { pos: "n.", trans: "謎團" },
+            "solved": { pos: "v.", trans: "解決" },
+            "puzzle": { pos: "n.", trans: "謎題" },
+            "devices": { pos: "n.", trans: "裝置" },
+            "cameras": { pos: "n.", trans: "相機" },
+            "patiently": { pos: "adv.", trans: "耐心地" },
+            "conditions": { pos: "n.", trans: "條件" },
+            "arrived": { pos: "v.", trans: "到達" },
+            "shallow": { pos: "adj.", trans: "淺的" },
+            "layer": { pos: "n.", trans: "層" },
+            "froze": { pos: "v.", trans: "結冰" },
+            "thin": { pos: "adj.", trans: "薄的" },
+            "sheets": { pos: "n.", trans: "片" },
+            "ice": { pos: "n.", trans: "冰" },
+            "floating": { pos: "adj.", trans: "漂浮的" },
+            "panels": { pos: "n.", trans: "板塊" },
+            "pushed": { pos: "v.", trans: "推動" },
+            "boat": { pos: "n.", trans: "船" },
+            "slippery": { pos: "adj.", trans: "滑的" },
+            "slid": { pos: "v.", trans: "滑動" },
+            "melted": { pos: "v.", trans: "融化" },
+            "dried": { pos: "v.", trans: "變乾" },
+            "tracks": { pos: "n.", trans: "軌跡" },
+            "magic": { pos: "n.", trans: "魔法" },
+            "rare": { pos: "adj.", trans: "罕見的" },
+            "mix": { pos: "n.", trans: "混合" },
+            "nature": { pos: "n.", trans: "大自然" },
+            "surprises": { pos: "n.", trans: "驚喜" }
         };
 
         let synth = window.speechSynthesis;
@@ -349,6 +408,7 @@
         let isPlaying = false;
         let textHidden = false;
         let selectedVoice = null;
+        let userScore = 0; // Track score in real-time
 
         // --- Initialization ---
         window.onload = function() {
@@ -367,9 +427,6 @@
             const loadVoices = () => {
                 const voices = synth.getVoices();
                 if (voices.length > 0) {
-                    // 1. Try Google US English (Best on Chrome)
-                    // 2. Try Microsoft Natural (Best on Edge)
-                    // 3. Fallback to any US English
                     selectedVoice = voices.find(v => v.name === 'Google US English') || 
                                     voices.find(v => v.name.includes('Microsoft') && v.name.includes('Natural') && v.lang.includes('en-US')) ||
                                     voices.find(v => v.name.includes('Samantha')) || 
@@ -415,7 +472,7 @@
                     span.className = 'cursor-pointer hover:bg-gray-100 rounded transition leading-loose';
                     span.onclick = (e) => {
                         // Prevent playing if user clicked a vocab tooltip
-                        if (e.target.classList.contains('vocab-word')) return;
+                        if (e.target.classList.contains('vocab-word') || e.target.parentElement.classList.contains('vocab-word')) return;
                         playFromSentence(parseInt(span.id.split('-')[1]));
                     };
                     
@@ -433,23 +490,21 @@
 
         // Wrap words with definitions in a span
         function processWords(text) {
-            // Split by space but preserve punctuation logic somewhat
             const words = text.split(' ');
             return words.map(word => {
-                // Strip punctuation for lookup
                 const cleanWord = word.replace(/[.,!?;:()"]/g, "").toLowerCase();
                 const originalWord = word;
                 
                 if (vocabulary[cleanWord]) {
-                    return `<span class="vocab-word" onclick="showDef(event)">${originalWord}<span class="vocab-tooltip">${vocabulary[cleanWord]}</span></span>`;
+                    const data = vocabulary[cleanWord];
+                    return `<span class="vocab-word" onclick="showDef(event)">${originalWord}<span class="vocab-tooltip"><span class="pos-tag">${data.pos}</span>${data.trans}</span></span>`;
                 }
                 return originalWord;
             }).join(' ');
         }
         
         function showDef(e) {
-            e.stopPropagation(); // Stop the sentence play event
-            // Tooltip is handled by CSS hover, but this stops the click event from bubbling
+            e.stopPropagation();
         }
 
         function togglePlay() {
@@ -487,7 +542,6 @@
             highlightSentence(index);
             updateProgressBar();
 
-            // Cancel any current speech
             synth.cancel();
 
             const text = sentences[index].text;
@@ -569,7 +623,6 @@
              document.getElementById('progress-bar').style.width = `${progress}%`;
         }
 
-        // --- UI Logic ---
         function toggleText() {
             textHidden = !textHidden;
             const overlay = document.getElementById('hidden-overlay');
@@ -588,25 +641,30 @@
             }
         }
 
+        // --- Revised Interactive Quiz Logic ---
+
         function renderQuiz() {
             const form = document.getElementById('quizForm');
             form.innerHTML = '';
             
             quizData.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = 'bg-gray-50 p-5 rounded-xl border border-gray-100 transition hover:shadow-md';
+                div.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-sm transition';
                 div.innerHTML = `
-                    <p class="font-bold text-gray-800 mb-3 text-lg">${item.q}</p>
-                    <div class="space-y-2">
+                    <p class="font-bold text-gray-800 mb-4 text-lg">${item.q}</p>
+                    <div class="space-y-3" id="${item.id}-options">
                         ${Object.keys(item.options).map(key => `
-                            <label class="flex items-center p-3 rounded-lg cursor-pointer option-label border border-transparent hover:border-indigo-200 bg-white">
-                                <input type="radio" name="${item.id}" value="${key}" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                <span class="ml-3 text-gray-700 font-medium">${key}) ${item.options[key]}</span>
+                            <label class="quiz-option flex items-center p-3 rounded-lg cursor-pointer border border-gray-200" id="${item.id}-label-${key}">
+                                <input type="radio" name="${item.id}" value="${key}" class="hidden" onclick="checkAnswer('${item.id}', '${key}')">
+                                <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center mr-3 font-bold text-gray-500 transition-colors" id="${item.id}-icon-${key}">
+                                    ${key}
+                                </div>
+                                <span class="text-gray-700 font-medium">${item.options[key]}</span>
                             </label>
                         `).join('')}
                     </div>
-                    <div id="${item.id}-expl" class="explanation-box mt-4">
-                        <p class="font-bold text-indigo-600 mb-1"><i class="fas fa-check-circle"></i> Correct Answer: ${item.ans}</p>
+                    <div id="${item.id}-expl" class="explanation-box">
+                        <p class="font-bold mb-1" id="${item.id}-status"></p>
                         <p>${item.expl}</p>
                     </div>
                 `;
@@ -614,42 +672,68 @@
             });
         }
 
-        function submitQuiz() {
-            let score = 0;
-            const form = document.getElementById('quizForm');
-            const formData = new FormData(form);
-            
-            // Disable inputs
-            const inputs = form.querySelectorAll('input');
-            inputs.forEach(i => i.disabled = true);
-            
-            quizData.forEach(item => {
-                const userAns = formData.get(item.id);
-                const container = document.querySelector(`input[name="${item.id}"]`).closest('.bg-gray-50');
-                const expl = document.getElementById(`${item.id}-expl`);
-                
-                expl.style.display = 'block';
-                
-                // Reset styles
-                container.classList.remove('bg-gray-50');
-                
-                if (userAns === item.ans) {
-                    score += 10;
-                    container.classList.add('correct-answer');
-                } else {
-                    container.classList.add('wrong-answer');
-                }
-            });
+        function checkAnswer(questionId, selectedKey) {
+            const questionObj = quizData.find(q => q.id === questionId);
+            if (!questionObj) return;
 
+            const isCorrect = selectedKey === questionObj.ans;
+            
+            // Disable all inputs for this question to prevent re-answering
+            const optionsDiv = document.getElementById(`${questionId}-options`);
+            const inputs = optionsDiv.querySelectorAll('input');
+            const labels = optionsDiv.querySelectorAll('label');
+            
+            inputs.forEach(input => input.disabled = true);
+            labels.forEach(label => label.classList.add('disabled'));
+
+            // Visual feedback for selected option
+            const selectedLabel = document.getElementById(`${questionId}-label-${selectedKey}`);
+            const selectedIcon = document.getElementById(`${questionId}-icon-${selectedKey}`);
+            
+            if (isCorrect) {
+                selectedLabel.classList.add('correct');
+                selectedIcon.classList.add('border-green-500', 'text-green-600', 'bg-green-100');
+                selectedIcon.innerHTML = '<i class="fas fa-check"></i>';
+                userScore += 10;
+            } else {
+                selectedLabel.classList.add('wrong');
+                selectedIcon.classList.add('border-red-500', 'text-red-600', 'bg-red-100');
+                selectedIcon.innerHTML = '<i class="fas fa-times"></i>';
+                
+                // Highlight the correct answer
+                const correctLabel = document.getElementById(`${questionId}-label-${questionObj.ans}`);
+                const correctIcon = document.getElementById(`${questionId}-icon-${questionObj.ans}`);
+                correctLabel.classList.add('correct');
+                correctIcon.classList.add('border-green-500', 'text-green-600', 'bg-green-100');
+                correctIcon.innerHTML = '<i class="fas fa-check"></i>';
+            }
+
+            // Show Explanation
+            const explBox = document.getElementById(`${questionId}-expl`);
+            const statusText = document.getElementById(`${questionId}-status`);
+            
+            explBox.style.display = 'block';
+            if (isCorrect) {
+                explBox.style.borderLeftColor = '#10b981'; // Green border
+                statusText.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> Correct!';
+                statusText.className = "font-bold mb-1 text-green-700";
+            } else {
+                explBox.style.borderLeftColor = '#ef4444'; // Red border
+                statusText.innerHTML = `<i class="fas fa-times-circle text-red-600"></i> Incorrect. The correct answer is ${questionObj.ans}.`;
+                statusText.className = "font-bold mb-1 text-red-700";
+            }
+        }
+
+        function showFinalScore() {
             const scoreDisplay = document.getElementById('final-score');
             const feedback = document.getElementById('feedback-msg');
             const resultCard = document.getElementById('score-card');
             
             resultCard.classList.remove('hidden');
-            scoreDisplay.innerText = `${score} / 100`;
+            scoreDisplay.innerText = `${userScore} / 100`;
             
             // Celebration Effect for Score >= 80
-            if (score >= 80) {
+            if (userScore >= 80) {
                 confetti({
                     particleCount: 150,
                     spread: 70,
@@ -657,8 +741,7 @@
                     colors: ['#6366f1', '#fbbf24', '#10b981', '#f472b6']
                 });
                 
-                if (score === 100) {
-                    // Extra burst for 100
+                if (userScore === 100) {
                     setTimeout(() => {
                         confetti({
                             particleCount: 100,
@@ -677,7 +760,7 @@
                 } else {
                     feedback.innerText = "Great job! Almost perfect.";
                 }
-            } else if (score >= 60) {
+            } else if (userScore >= 60) {
                 feedback.innerText = "Good pass. Review the text and try again.";
             } else {
                 feedback.innerText = "Don't give up! Listen to the audio a few more times.";
