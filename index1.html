@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>擬真語音互動測驗：The Mystery of the Sailing Stones</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Confetti Library for Celebration -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap');
@@ -55,52 +53,6 @@
         }
         .option-label:hover {
             background-color: #f3f4f6;
-        }
-        
-        /* Interactive Vocabulary Styles */
-        .vocab-word {
-            border-bottom: 2px dotted #818cf8;
-            cursor: help;
-            transition: all 0.2s;
-            position: relative;
-        }
-        .vocab-word:hover {
-            background-color: #e0e7ff;
-            color: #4338ca;
-        }
-
-        /* Tooltip Style */
-        .vocab-tooltip {
-            visibility: hidden;
-            width: 120px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 0;
-            position: absolute;
-            z-index: 100;
-            bottom: 125%; /* Position above */
-            left: 50%;
-            margin-left: -60px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85rem;
-            pointer-events: none;
-        }
-        .vocab-tooltip::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #333 transparent transparent transparent;
-        }
-        .vocab-word:hover .vocab-tooltip {
-            visibility: visible;
-            opacity: 1;
         }
         
         /* Audio Wave Animation */
@@ -180,10 +132,28 @@
 
                 <!-- Right: Settings -->
                 <div class="flex items-center gap-2 text-sm w-full md:w-auto justify-center md:justify-end border-t md:border-t-0 border-indigo-600 pt-2 md:pt-0 mt-2 md:mt-0">
+                    <!-- Speed -->
+                    <div class="relative group">
+                        <button class="flex items-center gap-1 bg-indigo-800/50 hover:bg-indigo-600 px-3 py-1.5 rounded-lg transition">
+                            <i class="fas fa-tachometer-alt"></i> <span id="speed-label">1.0x</span>
+                        </button>
+                        <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-white text-gray-800 rounded shadow-lg overflow-hidden">
+                            <button onclick="setSpeed(0.8)" class="px-4 py-2 hover:bg-gray-100 text-left whitespace-nowrap">0.8x (Slow)</button>
+                            <button onclick="setSpeed(1.0)" class="px-4 py-2 hover:bg-gray-100 text-left whitespace-nowrap font-bold">1.0x (Normal)</button>
+                            <button onclick="setSpeed(1.2)" class="px-4 py-2 hover:bg-gray-100 text-left whitespace-nowrap">1.2x (Fast)</button>
+                        </div>
+                    </div>
+
                     <!-- Toggle Text -->
                     <button onclick="toggleText()" id="toggle-text-btn" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold transition shadow">
                         <i class="fas fa-eye-slash"></i> <span>Hide Text</span>
                     </button>
+                    
+                    <!-- File Upload (Hidden by default, for Pro users) -->
+                    <label class="cursor-pointer bg-indigo-800/50 hover:bg-indigo-600 px-3 py-1.5 rounded-lg transition" title="Upload your own MP3">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" id="audio-upload" accept="audio/*" class="hidden" onchange="handleFileUpload(this)">
+                    </label>
                 </div>
             </div>
         </div>
@@ -249,10 +219,6 @@
         <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8 border border-gray-200 relative">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">The Mystery of the Sailing Stones</h2>
             
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 text-sm text-blue-700">
-                <i class="fas fa-info-circle mr-1"></i> <strong>Tip:</strong> Hover over or tap underlined words to see their meaning!
-            </div>
-
             <!-- Hidden Message Overlay -->
             <div id="hidden-overlay" class="hidden absolute inset-0 bg-white/90 z-10 flex flex-col items-center justify-center rounded-2xl backdrop-blur-sm transition-all">
                 <div class="bg-indigo-100 p-6 rounded-full mb-4">
@@ -326,29 +292,15 @@
             { id: 'q10', q: "10. How does the author feel?", options: {A: "Disappointed.", B: "Angry.", C: "Impressed by nature.", D: "Confused."}, ans: 'C', expl: "結尾 Nature is truly full of surprises 表達了讚嘆。" }
         ];
 
-        // Vocabulary Dictionary (Simple Map for this article)
-        const vocabulary = {
-            "quiet": "安靜的", "corner": "角落", "strange": "奇怪的", "place": "地方", "dry": "乾的", 
-            "flat": "平坦的", "lakebed": "湖床", "surrounded": "圍繞", "mountains": "山脈", "secret": "秘密", 
-            "visitors": "遊客", "noticed": "注意到", "heavy": "沉重的", "rocks": "岩石", "trails": "痕跡", 
-            "moved": "移動", "desert": "沙漠", "floor": "地面", "straight": "直的", "curved": "彎曲的", 
-            "actually": "實際上", "phenomenon": "現象", "puzzled": "困惑", "scientists": "科學家", "decades": "數十年", 
-            "travel": "移動", "hundreds": "數百", "meters": "公尺", "ideas": "想法", "aliens": "外星人", 
-            "magnetism": "磁力", "powerful": "強大的", "winds": "風", "proof": "證據", "sailing": "航行", 
-            "mystery": "謎團", "solved": "解決", "puzzle": "謎題", "devices": "裝置", "cameras": "相機", 
-            "patiently": "耐心地", "conditions": "條件", "arrived": "到達", "shallow": "淺的", "layer": "層", 
-            "froze": "結冰", "thin": "薄的", "sheets": "片", "ice": "冰", "floating": "漂浮的", 
-            "panels": "板塊", "pushed": "推動", "boat": "船", "slippery": "滑的", "slid": "滑動", 
-            "melted": "融化", "dried": "變乾", "tracks": "軌跡", "magic": "魔法", "rare": "罕見的", 
-            "mix": "混合", "nature": "大自然", "surprises": "驚喜"
-        };
-
         let synth = window.speechSynthesis;
         let sentences = [];
         let currentSentenceIndex = 0;
         let isPlaying = false;
         let textHidden = false;
+        let speakingRate = 1.0;
         let selectedVoice = null;
+        let uploadedAudio = null; // For user uploaded MP3
+        let usingUploadedAudio = false;
 
         // --- Initialization ---
         window.onload = function() {
@@ -393,6 +345,8 @@
 
         function renderArticle() {
             const rawText = document.getElementById('raw-text').innerText;
+            // Split by regex but keep delimiters. Complex logic simplified here:
+            // We split by periods, question marks, exclamation marks.
             const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
             const segments = segmenter.segment(rawText);
             
@@ -407,17 +361,15 @@
                 const cleanSegment = segment.trim();
                 if (cleanSegment.length > 0) {
                     const span = document.createElement('span');
-                    
-                    // Process words for dictionary lookup
-                    span.innerHTML = processWords(cleanSegment);
-                    
+                    span.innerText = segment; // keep original spacing
                     span.id = `sent-${count}`;
-                    span.className = 'cursor-pointer hover:bg-gray-100 rounded transition leading-loose';
-                    span.onclick = (e) => {
-                        // Prevent playing if user clicked a vocab tooltip
-                        if (e.target.classList.contains('vocab-word')) return;
-                        playFromSentence(parseInt(span.id.split('-')[1]));
-                    };
+                    span.className = 'cursor-pointer hover:bg-gray-100 rounded transition';
+                    span.onclick = () => playFromSentence(parseInt(span.id.split('-')[1]));
+                    
+                    // Simple logic to detect paragraph breaks (double newline in raw text)
+                    // Since rawText formatting might be lost in HTML innerText, we rely on flow.
+                    // For better visuals, let's just create a new paragraph every 4-5 sentences roughly or check raw text line breaks.
+                    // Here we just append all to one flow, but let's try to detect big breaks.
                     
                     if(count > 0 && count % 5 === 0) {
                          p = document.createElement('p');
@@ -431,28 +383,12 @@
             }
         }
 
-        // Wrap words with definitions in a span
-        function processWords(text) {
-            // Split by space but preserve punctuation logic somewhat
-            const words = text.split(' ');
-            return words.map(word => {
-                // Strip punctuation for lookup
-                const cleanWord = word.replace(/[.,!?;:()"]/g, "").toLowerCase();
-                const originalWord = word;
-                
-                if (vocabulary[cleanWord]) {
-                    return `<span class="vocab-word" onclick="showDef(event)">${originalWord}<span class="vocab-tooltip">${vocabulary[cleanWord]}</span></span>`;
-                }
-                return originalWord;
-            }).join(' ');
-        }
-        
-        function showDef(e) {
-            e.stopPropagation(); // Stop the sentence play event
-            // Tooltip is handled by CSS hover, but this stops the click event from bubbling
-        }
-
         function togglePlay() {
+            if (usingUploadedAudio) {
+                toggleUploadedAudio();
+                return;
+            }
+
             if (isPlaying) {
                 pauseAudio();
             } else {
@@ -494,14 +430,19 @@
             const utterance = new SpeechSynthesisUtterance(text);
             
             if (selectedVoice) utterance.voice = selectedVoice;
-            utterance.rate = 1.0; 
-            utterance.pitch = 1.05; 
+            utterance.rate = speakingRate;
+            utterance.pitch = 1.05; // Slightly higher pitch often sounds clearer/friendlier
+            
+            // "Natural Pacing" Logic:
+            // Browser TTS often rushes. We can't insert silence directly easily in one utterance.
+            // But since we are doing sentence-by-sentence, we get a natural pause between function calls.
             
             utterance.onend = function() {
                 if (isPlaying) {
+                    // Add a small delay between sentences for natural breathing room
                     setTimeout(() => {
                         speakSentence(index + 1);
-                    }, 400); 
+                    }, 400); // 400ms pause
                 }
             };
             
@@ -523,15 +464,21 @@
 
         function restartAudio() {
             synth.cancel();
+            if (uploadedAudio) {
+                uploadedAudio.currentTime = 0;
+                if(!uploadedAudio.paused) uploadedAudio.pause();
+            }
             currentSentenceIndex = 0;
             updateProgressBar();
             highlightSentence(-1);
             if (isPlaying) {
+                // Short timeout to let cancel finish
                 setTimeout(() => speakSentence(0), 100);
             }
         }
         
         function playFromSentence(index) {
+            if(usingUploadedAudio) return; // Can't seek specific text in MP3 easily without timestamps
             currentSentenceIndex = index;
             isPlaying = true;
             updatePlayBtn(true);
@@ -553,12 +500,14 @@
         }
 
         function highlightSentence(index) {
+            // Remove old highlight
             document.querySelectorAll('.highlight-text').forEach(el => el.classList.remove('highlight-text'));
             
             if (index >= 0 && index < sentences.length) {
                 const el = document.getElementById(sentences[index].id);
                 if (el) {
                     el.classList.add('highlight-text');
+                    // Auto scroll to keep reading in view
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
@@ -567,6 +516,69 @@
         function updateProgressBar() {
              const progress = ((currentSentenceIndex + 1) / sentences.length) * 100;
              document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+        
+        function setSpeed(rate) {
+            speakingRate = rate;
+            document.getElementById('speed-label').innerText = rate + 'x';
+            if(usingUploadedAudio && uploadedAudio) {
+                uploadedAudio.playbackRate = rate;
+            } else if (isPlaying) {
+                // Restart current sentence to apply speed
+                synth.cancel();
+                speakSentence(currentSentenceIndex);
+            }
+        }
+
+        // --- Uploaded Audio Logic (Pro Feature) ---
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const url = URL.createObjectURL(file);
+                
+                // Reset TTS
+                synth.cancel();
+                isPlaying = false;
+                
+                // Setup Audio Object
+                if(uploadedAudio) uploadedAudio.pause();
+                uploadedAudio = new Audio(url);
+                usingUploadedAudio = true;
+                
+                // UI Feedback
+                document.getElementById('voice-indicator').innerHTML = `<i class="fas fa-file-audio text-green-400"></i> Using: ${file.name}`;
+                updatePlayBtn(false);
+                
+                uploadedAudio.onended = () => {
+                    isPlaying = false;
+                    updatePlayBtn(false);
+                    document.getElementById('visualizer').classList.remove('playing');
+                };
+                
+                uploadedAudio.ontimeupdate = () => {
+                     const pct = (uploadedAudio.currentTime / uploadedAudio.duration) * 100;
+                     document.getElementById('progress-bar').style.width = `${pct}%`;
+                };
+                
+                alert("音檔已載入！請按播放鍵開始。(Audio Loaded!)");
+            }
+        }
+        
+        function toggleUploadedAudio() {
+            if(!uploadedAudio) return;
+            
+            if (uploadedAudio.paused) {
+                uploadedAudio.play();
+                uploadedAudio.playbackRate = speakingRate;
+                isPlaying = true;
+                updatePlayBtn(true);
+                document.getElementById('visualizer').classList.add('playing');
+            } else {
+                uploadedAudio.pause();
+                isPlaying = false;
+                updatePlayBtn(false);
+                document.getElementById('visualizer').classList.remove('playing');
+            }
         }
 
         // --- UI Logic ---
@@ -616,6 +628,7 @@
 
         function submitQuiz() {
             let score = 0;
+            let answered = 0;
             const form = document.getElementById('quizForm');
             const formData = new FormData(form);
             
@@ -648,40 +661,10 @@
             resultCard.classList.remove('hidden');
             scoreDisplay.innerText = `${score} / 100`;
             
-            // Celebration Effect for Score >= 80
-            if (score >= 80) {
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#6366f1', '#fbbf24', '#10b981', '#f472b6']
-                });
-                
-                if (score === 100) {
-                    // Extra burst for 100
-                    setTimeout(() => {
-                        confetti({
-                            particleCount: 100,
-                            angle: 60,
-                            spread: 55,
-                            origin: { x: 0 }
-                        });
-                        confetti({
-                            particleCount: 100,
-                            angle: 120,
-                            spread: 55,
-                            origin: { x: 1 }
-                        });
-                    }, 500);
-                    feedback.innerText = "Perfect! Your listening is amazing!";
-                } else {
-                    feedback.innerText = "Great job! Almost perfect.";
-                }
-            } else if (score >= 60) {
-                feedback.innerText = "Good pass. Review the text and try again.";
-            } else {
-                feedback.innerText = "Don't give up! Listen to the audio a few more times.";
-            }
+            if (score === 100) feedback.innerText = "Perfect! Your listening is amazing!";
+            else if (score >= 80) feedback.innerText = "Great job! Almost perfect.";
+            else if (score >= 60) feedback.innerText = "Good pass. Review the text and try again.";
+            else feedback.innerText = "Don't give up! Listen to the audio a few more times.";
             
             resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
